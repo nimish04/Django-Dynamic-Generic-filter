@@ -6,7 +6,6 @@ from .models import *
 
 class SignUpForm(UserCreationForm):
     # first_name = forms.CharField(max_length=30, required=False, help_text='Optional.')
-    username=forms.CharField(max_length=100,min_length=3,required=True)
     # mobile=forms.CharField(min_length=10,required=False)
     # last_name = forms.CharField(max_length=30, required=False, help_text='Optional.')
     email = forms.EmailField(max_length=254, help_text='Required. Inform a valid email address.')
@@ -14,7 +13,7 @@ class SignUpForm(UserCreationForm):
     class Meta:
         model = User
         # fields = ('first_name', 'last_name','username','mobile' ,'email', 'password1', 'password2' )
-        fields=('username','email')
+        fields=('email',)
 
 class ForgotPasswordForm(UserCreationForm):
     email=forms.EmailField(max_length=254,help_text="Required. Inform a valid email address.")
