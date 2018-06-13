@@ -5,15 +5,16 @@ import django_filters
 from .models import *
 
 class SignUpForm(UserCreationForm):
-    first_name = forms.CharField(max_length=30, required=False, help_text='Optional.')
-    username=forms.CharField(max_length=100,min_length=3,required=True,help_text="Not Optional")
-    mobile=forms.CharField(min_length=10,required=False)
-    last_name = forms.CharField(max_length=30, required=False, help_text='Optional.')
+    # first_name = forms.CharField(max_length=30, required=False, help_text='Optional.')
+    username=forms.CharField(max_length=100,min_length=3,required=True)
+    # mobile=forms.CharField(min_length=10,required=False)
+    # last_name = forms.CharField(max_length=30, required=False, help_text='Optional.')
     email = forms.EmailField(max_length=254, help_text='Required. Inform a valid email address.')
 
     class Meta:
         model = User
-        fields = ('first_name', 'last_name','username','mobile' ,'email', 'password1', 'password2' )
+        # fields = ('first_name', 'last_name','username','mobile' ,'email', 'password1', 'password2' )
+        fields=('username','email')
 
 class ForgotPasswordForm(UserCreationForm):
     email=forms.EmailField(max_length=254,help_text="Required. Inform a valid email address.")

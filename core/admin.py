@@ -4,3 +4,4 @@ from .models import Profile,Package,PackageAttribute,AttributeChoiceValue
 admin.site.register(Package)
 admin.site.register(PackageAttribute)
 admin.site.register(AttributeChoiceValue)
+admin.site.register(Profile)

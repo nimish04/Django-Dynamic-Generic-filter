@@ -3,11 +3,13 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.sites.shortcuts import get_current_site
 from django.shortcuts import render, redirect
+from django.core.mail import send_mail
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.template.loader import render_to_string
+from django.utils.http import urlsafe_base64_decode
 from django.http import HttpResponse
-from .forms import SignUpForm, ForgotPasswordForm, ChangePasswordForm
+from .forms import *
 from .tokens import account_activation_token
 # from product.filters import ProductFilter
 from core.forms1 import Att
@@ -21,14 +23,12 @@ from functools import reduce
 from .models import *
 from operator import or_
 import ast
+import operator
 
 
 @login_required
 def home(request):
-    return render(request, 'core/home.html')
-
-# def login(request):
-
+    return render(request, 'home.html')
 
 def signup(request):
     if request.method == 'POST':
@@ -38,40 +38,39 @@ def signup(request):
             user.is_active = False
             user.save()
 
-            # current_site = get_current_site(request)
-            # subject = 'Activate Your MySite Account'
-            # message = render_to_string('core/account_activation_email.html', {
-            #     'user': user,
-            #     'domain': current_site.domain,
-            #     'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-            #     'token': account_activation_token.make_token(user),
-            # })
-            # user.email_user(subject, message)
-            #
-            # return redirect('account_activation_sent')
-            return redirect('login')
+            current_site = get_current_site(request)
+            subject = 'Activate Your Opportunist Account'
+            message = render_to_string('account_activation_email.html', {
+                'user': user,
+                'domain': current_site.domain,
+                'uid': urlsafe_base64_encode(force_bytes(user.pk)).decode(),
+                'token': account_activation_token.make_token(user),
+            })
+            user.email_user(subject, message)
+
+            return redirect('account_activation_sent')
     else:
         form = SignUpForm()
-    return render(request, 'core/signup.html', {'form': form})
+    return render(request, 'signup.html', {'form': form})
 
-# def account_activation_sent(request):
-#     return render(request,'core/account_activation_sent.html')
-#
-# def activate(request, uidb64, token):
-#     try:
-#         uid = force_text(urlsafe_base64_decode(uidb64))
-#         user = User.objects.get(pk=uid)
-#     except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-#         user = None
-#
-#     if user is not None and account_activation_token.check_token(user, token):
-#         user.is_active = True
-#         user.profile.email_confirmed = True
-#         user.save()
-#         login(request, user)
-#         return redirect('home')
-#     else:
-#         return render(request, 'core/account_activation_invalid.html')
+def account_activation_sent(request):
+    return render(request,'account_activation_sent.html')
+
+def activate(request, uidb64, token):
+    try:
+        uid = force_text(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user is not None and account_activation_token.check_token(user, token):
+        user.is_active = True
+        user.profile.email_confirmed = True
+        user.save()
+        login(request, user)
+        return redirect('home')
+    else:
+        return render(request, 'account_activation_invalid.html')
 
 def forgot(request):
     if request.method == 'POST':
@@ -80,10 +79,10 @@ def forgot(request):
             user = form.save(commit=False)
             user.is_active = False
             user.save()
-            return redirect('core/login')
+            return redirect('login')
     else:
         form=ForgotPasswordForm()
-    return render(request,'core/forgot.html',{'form':form})
+    return render(request,'forgot.html',{'form':form})
 
 def change(request):
     if request.method=='POST':
@@ -92,10 +91,10 @@ def change(request):
             user=form.save(commit=False)
             user.is_active=False
             user.save()
-            return redirect ('core/login')
+            return redirect ('login')
     else :
         form=ForgotPasswordForm()
-    return render(request,'core/change.html',{'form':form})
+    return render(request,'change.html',{'form':form})
 
 def search(request):
     if request.GET:
@@ -134,13 +133,12 @@ def search(request):
                 print(vls)
                 print()
                 cond_name = 'attributes__{}__{}'.format(key, value['op'])
-                conditions = reduce(or_, [Q(**{cond_name: vl}) for vl in vls], Q())
+                conditions = reduce(operator.or_, [Q(**{cond_name: vl}) for vl in vls], Q())
                 result = result.filter(conditions)
                 print(cond_name)
                 print()
                 print(conditions)
                 print()
-                result = result.filter(conditions)
                 print(result)
                 print()
             else:
@@ -160,14 +158,12 @@ def search(request):
 
         # data=Att2()
         package_filter=PackageFilter(request.GET,queryset=result)
-        print(package_filter)
-        print()
-        return render(request,'core/package_list.html',{'package1': package_filter, 'filter1': Att()})
+        return render(request,'package_list.html',{'package1': package_filter, 'filter1': Att()})
 
     else :
         package_list=Package.objects.all()
         package_filter=PackageFilter(request.GET,queryset=package_list)
-        return render(request,'core/package_list.html',{'package1': package_filter, 'filter1': Att()})
+        return render(request,'package_list.html',{'package1': package_filter, 'filter1': Att()})
 
 #
 # def inp(request):

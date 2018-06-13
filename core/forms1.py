@@ -2,17 +2,17 @@ from core.models import *
 from django import forms
 import django_filters
 
-pri = (
+price = (
     ((0, 999), 'Rs 0-999'),
     ((1000, 2499), 'Rs 1000-2499'),
     ((2500, 10000), 'Rs 2500-10000'),
-    ((10001, 50000), 'Rs 10001-50000'),
+    ((int(10001), int(50000)), 'Rs 10001-50000'),
     ((500001,1000000),'Rs 50000+'),
 )
 
 people=(
     ((1,5), '1-5'),
-    ((5,11), '6-10'),
+    ((6,10), '6-10'),
     ((11, 20), '11-20'),
     ((21,1000), '20+'),
 )
@@ -48,7 +48,7 @@ class Att(django_filters.FilterSet):
         queryset=q3.values_list('name', flat=True).distinct(),
         widget=forms.CheckboxSelectMultiple))
 
-    price = django_filters.MultipleChoiceFilter(field_name='price',choices=pri,widget=forms.CheckboxSelectMultiple)
+    price = django_filters.MultipleChoiceFilter(field_name='price',choices=price,widget=forms.CheckboxSelectMultiple)
 
     class Meta:
         model=AttributeChoiceValue
